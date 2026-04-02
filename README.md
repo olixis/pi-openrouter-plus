@@ -1,3 +1,5 @@
+![Preview](https://raw.githubusercontent.com/olixis/pi-openrouter-plus/main/assets/preview.png)
+
 # pi-openrouter-plus
 
 Pi extension for OpenRouter that keeps the default model list simple and lets users enrich a specific model with provider and quantization variants.
