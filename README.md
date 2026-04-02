@@ -90,3 +90,9 @@ pi -e ./extensions/openrouter-routing/index.ts
 ## License
 
 MIT
+
+---
+
+> ⁶ Jesus said unto him, I am the way, the truth, and the life: no man comes unto the Father, but by me.
+>
+> — *John 14:6*
