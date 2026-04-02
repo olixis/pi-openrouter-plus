@@ -1,12 +1,12 @@
 ![Preview](https://raw.githubusercontent.com/olixis/pi-openrouter-plus/main/assets/preview.png)
 
-# pi-openrouter-plus
+# pi-openrouter-realtime
 
 Pi extension for OpenRouter that loads the latest models from OpenRouter in real time, keeps the default model list simple, and lets you enrich a specific model with provider and quantization variants.
 
 Npm package:
 
-- `@corvo_prophet/pi-openrouter-plus`
+- `pi-openrouter-realtime`
 
 ## Features
 
@@ -22,7 +22,7 @@ Npm package:
 ### From npm
 
 ```bash
-pi install npm:@corvo_prophet/pi-openrouter-plus
+pi install npm:pi-openrouter-realtime
 ```
 
 ### From GitHub
@@ -34,7 +34,7 @@ pi install git:github.com/olixis/pi-openrouter-plus
 ### Try without installing
 
 ```bash
-pi -e npm:@corvo_prophet/pi-openrouter-plus
+pi -e npm:pi-openrouter-realtime
 ```
 
 or:

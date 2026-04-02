@@ -1,6 +1,6 @@
 {
-  "name": "pi-openrouter-plus",
-  "version": "0.1.0",
+  "name": "pi-openrouter-realtime",
+  "version": "0.2.0",
   "description": "OpenRouter extension for pi that loads the latest models from OpenRouter in real time and adds optional provider and quantization enrichment per model",
   "license": "MIT",
   "type": "module",
