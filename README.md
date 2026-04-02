@@ -87,24 +87,6 @@ Or load the extension entry file directly:
 pi -e ./extensions/openrouter-routing/index.ts
 ```
 
-## Preview
-
-The package metadata points to:
-
-- `https://raw.githubusercontent.com/olixis/pi-openrouter-plus/main/assets/preview.png`
-
-Local preview asset in this repo:
-
-- `assets/preview.png`
-
-## Publishing checklist
-
-1. verify `bunx tsc --noEmit`
-2. test with `pi -e .`
-3. optionally confirm `assets/preview.png` is the image you want shown in the pi package gallery
-4. publish to GitHub
-5. publish to npm
-
 ## License
 
 MIT
