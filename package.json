@@ -1,0 +1,48 @@
+{
+  "name": "pi-openrouter-plus",
+  "version": "0.1.0",
+  "description": "OpenRouter extension for pi with optional provider and quantization enrichment per model",
+  "license": "MIT",
+  "type": "module",
+  "keywords": [
+    "pi-package",
+    "pi",
+    "openrouter",
+    "extension",
+    "llm"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/olixis/pi-openrouter-plus.git"
+  },
+  "homepage": "https://github.com/olixis/pi-openrouter-plus",
+  "bugs": {
+    "url": "https://github.com/olixis/pi-openrouter-plus/issues"
+  },
+  "files": [
+    "extensions",
+    "assets",
+    "README.md",
+    "LICENSE",
+    "package.json",
+    "tsconfig.json"
+  ],
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "@mariozechner/pi-ai": "*",
+    "@mariozechner/pi-coding-agent": "*"
+  },
+  "devDependencies": {
+    "@mariozechner/pi-ai": "*",
+    "@mariozechner/pi-coding-agent": "*",
+    "typescript": "^5.8.0"
+  },
+  "pi": {
+    "extensions": [
+      "./extensions/openrouter-routing/index.ts"
+    ],
+    "image": "https://raw.githubusercontent.com/olixis/pi-openrouter-plus/main/assets/preview.png"
+  }
+}
