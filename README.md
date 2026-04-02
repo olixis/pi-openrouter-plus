@@ -2,13 +2,18 @@
 
 # pi-openrouter-plus
 
-Pi extension for OpenRouter that keeps the default model list simple and lets users enrich a specific model with provider and quantization variants.
+Pi extension for OpenRouter that loads the latest models from OpenRouter in real time, keeps the default model list simple, and lets you enrich a specific model with provider and quantization variants.
+
+Npm package:
+
+- `@corvo_prophet/pi-openrouter-plus`
 
 ## Features
 
-- Syncs the normal OpenRouter model list into pi
+- Loads the latest OpenRouter model list into pi in real time
 - Keeps startup behavior fast by default
-- Adds provider-specific and quantization-specific variants on demand
+- Adds provider-specific variants on demand
+- Adds quantization-specific variants for a chosen model
 - Routes enriched selections through OpenRouter provider routing
 - Enriches one model at a time to avoid slow full-catalog endpoint scans
 
@@ -17,7 +22,7 @@ Pi extension for OpenRouter that keeps the default model list simple and lets us
 ### From npm
 
 ```bash
-pi install npm:pi-openrouter-plus
+pi install npm:@corvo_prophet/pi-openrouter-plus
 ```
 
 ### From GitHub
@@ -29,7 +34,7 @@ pi install git:github.com/olixis/pi-openrouter-plus
 ### Try without installing
 
 ```bash
-pi -e npm:pi-openrouter-plus
+pi -e npm:@corvo_prophet/pi-openrouter-plus
 ```
 
 or:
@@ -40,8 +45,8 @@ pi -e git:github.com/olixis/pi-openrouter-plus
 
 ## Commands
 
-- `/openrouter-sync` — fetch the latest plain OpenRouter model list
-- `/openrouter-enrich <model-id>` — add provider/quantization variants for one specific OpenRouter model
+- `/openrouter-sync` — fetch the latest OpenRouter model list in real time
+- `/openrouter-enrich <model-id>` — add provider and quantization variants for one specific OpenRouter model
 
 ## Example
 
@@ -56,8 +61,9 @@ This keeps the normal OpenRouter catalog and adds variants like:
 
 ## Behavior
 
-- On startup, the extension syncs the plain OpenRouter model list
+- On startup, the extension syncs the latest plain OpenRouter model list from OpenRouter
 - Enrichment is manual and targeted to one model at a time
+- Quantization variants are exposed as separate model choices when available
 - Enriched variants are translated into OpenRouter provider routing fields at request time
 - If you want to go back to the default list, run `/openrouter-sync`
 

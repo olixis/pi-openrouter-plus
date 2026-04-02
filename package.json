@@ -1,7 +1,7 @@
 {
-  "name": "pi-openrouter-plus",
+  "name": "@corvo_prophet/pi-openrouter-plus",
   "version": "0.1.0",
-  "description": "OpenRouter extension for pi with optional provider and quantization enrichment per model",
+  "description": "OpenRouter extension for pi that loads the latest models from OpenRouter in real time and adds optional provider and quantization enrichment per model",
   "license": "MIT",
   "type": "module",
   "keywords": [
@@ -13,7 +13,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/olixis/pi-openrouter-plus.git"
+    "url": "git+https://github.com/olixis/pi-openrouter-plus.git"
   },
   "homepage": "https://github.com/olixis/pi-openrouter-plus",
   "bugs": {
