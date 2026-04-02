@@ -156,6 +156,4 @@ MIT
 
 ---
 
-> ⁶ Jesus said unto him, I am the way, the truth, and the life: no man comes unto the Father, but by me.
->
-> — *John 14:6*
+> My will is my law.
