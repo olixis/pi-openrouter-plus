@@ -113,8 +113,8 @@ pi -e git:github.com/olixis/pi-openrouter-plus
 
 This keeps the normal OpenRouter catalog and adds variants like:
 
-- `Kwaipilot: KAT-Coder-Pro V2 (StreamLake)`
-- `Kwaipilot: KAT-Coder-Pro V2 (AtlasCloud · fp8)`
+- `StreamLake — Kwaipilot: KAT-Coder-Pro V2`
+- `AtlasCloud · fp8 — Kwaipilot: KAT-Coder-Pro V2`
 
 ## Behavior
 

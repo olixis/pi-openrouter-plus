@@ -11,7 +11,7 @@ const OPENROUTER_MODELS_URL = "https://openrouter.ai/api/v1/models";
 const OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1";
 const PROVIDER_NAME = "openrouter";
 const CACHE_TTL_MS = 30 * 60 * 1000; // 30 minutes
-const ENRICHED_MODEL_PREFIX = "openrouter-route:";
+const ENRICHED_MODEL_PREFIX = "@or:";
 
 type InputType = "text" | "image";
 type SyncMode = "plain" | "enriched";
@@ -163,14 +163,16 @@ function toProviderModel(m: OpenRouterModel): ProviderModelConfig {
 }
 
 function createVariantId(baseModelId: string, providerSlug: string, quantization?: string): string {
-  const q = quantization || "default";
-  return `${ENRICHED_MODEL_PREFIX}${baseModelId}::${providerSlug}::${q}`;
+  const routeLabel = quantization ? `${providerSlug}:${quantization}` : providerSlug;
+  // Keep provider/quantization first so truncated picker/footer labels still show
+  // the routing info that makes enriched variants useful.
+  return `${ENRICHED_MODEL_PREFIX}${routeLabel}:${baseModelId}`;
 }
 
 function createVariantName(baseName: string, providerName: string, quantization?: string): string {
   return quantization
-    ? `${baseName} (${providerName} · ${quantization})`
-    : `${baseName} (${providerName})`;
+    ? `${providerName} · ${quantization} — ${baseName}`
+    : `${providerName} — ${baseName}`;
 }
 
 function resetCaches() {
