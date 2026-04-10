@@ -1,6 +1,6 @@
 {
   "name": "pi-openrouter-realtime",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "OpenRouter extension for pi — real-time model sync, provider/quantization enrichment, endpoint health, credit balance, and interactive model picker",
   "license": "MIT",
   "type": "module",

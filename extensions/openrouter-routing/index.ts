@@ -21,10 +21,11 @@ import {
 
 const REFERER_HEADER = "https://github.com/olixis/pi-openrouter-plus";
 const APP_TITLE = "pi-openrouter-realtime";
+const OPENROUTER_INFO_MESSAGE_TYPE = "openrouter-info";
 
 function emitMessage(pi: ExtensionAPI, text: string) {
   pi.sendMessage({
-    customType: "openrouter-info",
+    customType: OPENROUTER_INFO_MESSAGE_TYPE,
     content: text,
     display: true,
   });
@@ -100,6 +101,17 @@ function buildVariantPricingInfo(target: { pricing?: { prompt?: string; completi
 }
 
 export default function openrouterModelsExtension(pi: ExtensionAPI) {
+  // ---------- Keep extension info messages out of LLM context ----------
+
+  pi.on("context", async (event) => {
+    return {
+      messages: event.messages.filter(
+        (message: any) =>
+          !(message.role === "custom" && message.customType === OPENROUTER_INFO_MESSAGE_TYPE),
+      ),
+    };
+  });
+
   // ---------- Provider registration ----------
 
   function registerWithSnapshot(
