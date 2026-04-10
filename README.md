@@ -1,6 +1,6 @@
 ![Preview](https://raw.githubusercontent.com/olixis/pi-openrouter-plus/main/assets/preview.png)
 
-# pi-openrouter-realtime v0.3.0
+# pi-openrouter-realtime v0.3.1
 
 Pi extension for OpenRouter that loads the latest models from OpenRouter in real time, with provider/quantization enrichment, endpoint health indicators, credit balance display, interactive model picker, and tab-completion.
 
@@ -9,6 +9,12 @@ Once the extension is installed and your OpenRouter credential is configured in 
 Npm package:
 
 - `pi-openrouter-realtime`
+
+## What's New in v0.3.1
+
+- **Fixed variant counting** — enriched variants are no longer presented as both base models and `+N variants`
+- **Clearer totals** — status/output now distinguishes total registered models from variant count
+- **Less intrusive account output** — removed the key label / redacted API-key style line from account/status output
 
 ## What's New in v0.3.0
 
@@ -171,7 +177,7 @@ DeepSeek: DeepSeek R1 (deepseek/deepseek-r1)
 - If you want to refresh manually or go back to the default list, run `/openrouter-sync`
 - Preview output also includes search-related model info (id, name, terms, description) plus pricing and endpoint health
 
-## Architecture (v0.3.0 improvements)
+## Architecture (v0.3.x improvements)
 
 - **Snapshot-based routing** — the stream factory captures a frozen route map at registration time, eliminating race conditions when syncing
 - **Generation counter** — overlapping sync calls are safely discarded if a newer sync has started

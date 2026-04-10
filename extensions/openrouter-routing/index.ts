@@ -158,8 +158,9 @@ export default function openrouterModelsExtension(pi: ExtensionAPI) {
       const failuresText =
         result.endpointFailures > 0 ? `, ${result.endpointFailures} endpoint failures` : "";
       const enrichedList = Array.from(result.enrichedModelIds).join(", ");
+      const totalRegistered = result.models.length;
       ctx.ui.notify(
-        `OpenRouter: ${result.modelCount} models + ${result.variantCount} variants [${enrichedList}]${failuresText}`,
+        `OpenRouter: ${totalRegistered} models registered (${result.variantCount} variants) [${enrichedList}]${failuresText}`,
         "info",
       );
     } catch (err: any) {
@@ -341,7 +342,6 @@ export default function openrouterModelsExtension(pi: ExtensionAPI) {
 
         lines.push("");
 
-        if (info.label) lines.push(`Key: ${info.label}`);
         if (info.is_free_tier) lines.push("Tier: Free");
 
         if (info.limit !== null && info.limit !== undefined) {
@@ -377,8 +377,13 @@ export default function openrouterModelsExtension(pi: ExtensionAPI) {
       const snapshot = getSnapshot();
       const lines: string[] = ["**OpenRouter Extension Status**", ""];
 
-      lines.push(`Models registered: ${snapshot.models.length}`);
-      lines.push(`Active routes: ${snapshot.routes.size}`);
+      const totalModels = snapshot.models.length;
+      const variantCount = snapshot.routes.size;
+      const baseModelCount = Math.max(0, totalModels - variantCount);
+
+      lines.push(`Models registered: ${totalModels}`);
+      lines.push(`Base models: ${baseModelCount}`);
+      lines.push(`Variants registered: ${variantCount}`);
 
       if (snapshot.enrichedModelIds.size > 0) {
         lines.push(`Enriched models: ${Array.from(snapshot.enrichedModelIds).join(", ")}`);
@@ -402,10 +407,8 @@ export default function openrouterModelsExtension(pi: ExtensionAPI) {
   function updateStatusBar(ctx: any) {
     const snapshot = getSnapshot();
     if (snapshot.models.length > 0) {
-      const enrichLabel =
-        snapshot.enrichedModelIds.size > 0
-          ? ` +${snapshot.routes.size} variants`
-          : "";
+      const variantCount = snapshot.routes.size;
+      const enrichLabel = variantCount > 0 ? ` (${variantCount} variants)` : "";
       try {
         ctx.ui.setStatus("openrouter", `OR: ${snapshot.models.length} models${enrichLabel}`);
       } catch {
