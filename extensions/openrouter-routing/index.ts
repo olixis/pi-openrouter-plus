@@ -343,13 +343,15 @@ export default function openrouterModelsExtension(pi: ExtensionAPI) {
 
         const lines: string[] = ["**OpenRouter Account**", ""];
 
-        // Balance first — the most important info
+        // OpenRouter exposes two different concepts here:
+        // - /credits => account-level purchased credits and total account usage (management key only)
+        // - /key     => current API key limits and usage counters
         if (credits && credits.total_credits !== undefined && credits.total_usage !== undefined) {
           const balance = credits.total_credits - credits.total_usage;
           lines.push(`💰 **Balance: $${balance.toFixed(4)}**`);
-          lines.push(`   Credits: $${credits.total_credits.toFixed(4)} — Used: $${credits.total_usage.toFixed(4)}`);
+          lines.push(`   Account credits: $${credits.total_credits.toFixed(4)} — Account used: $${credits.total_usage.toFixed(4)}`);
         } else if (info.limit_remaining !== null && info.limit_remaining !== undefined) {
-          lines.push(`💰 **Remaining: $${info.limit_remaining.toFixed(4)}**`);
+          lines.push(`💰 **Remaining key limit: $${info.limit_remaining.toFixed(4)}**`);
         }
 
         lines.push("");
@@ -359,12 +361,16 @@ export default function openrouterModelsExtension(pi: ExtensionAPI) {
         if (info.limit !== null && info.limit !== undefined) {
           const limitStr = `$${info.limit.toFixed(2)}`;
           const resetStr = info.limit_reset ? ` (resets ${info.limit_reset})` : "";
-          lines.push(`Spend limit: ${limitStr}${resetStr}`);
+          lines.push(`Key spend limit: ${limitStr}${resetStr}`);
         }
 
-        if (info.usage_daily !== undefined || info.usage_monthly !== undefined) {
+        if (
+          info.usage !== undefined
+          || info.usage_daily !== undefined
+          || info.usage_monthly !== undefined
+        ) {
           lines.push("");
-          lines.push("**Usage**");
+          lines.push("**Current API key usage**");
           if (info.usage_daily !== undefined) {
             lines.push(`  Today: $${info.usage_daily.toFixed(4)}`);
           }
@@ -372,7 +378,7 @@ export default function openrouterModelsExtension(pi: ExtensionAPI) {
             lines.push(`  This month: $${info.usage_monthly.toFixed(4)}`);
           }
           if (info.usage !== undefined) {
-            lines.push(`  All-time: $${info.usage.toFixed(4)}`);
+            lines.push(`  All-time for this key: $${info.usage.toFixed(4)}`);
           }
         }
 

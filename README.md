@@ -1,6 +1,6 @@
 ![Preview](https://raw.githubusercontent.com/olixis/pi-openrouter-plus/main/assets/preview.png)
 
-# pi-openrouter-realtime v0.3.2
+# pi-openrouter-realtime v0.3.3
 
 Pi extension for OpenRouter that loads the latest models from OpenRouter in real time, with provider/quantization enrichment, endpoint health indicators, credit balance display, interactive model picker, and tab-completion.
 
@@ -10,7 +10,7 @@ Npm package:
 
 - `pi-openrouter-realtime`
 
-## What's New in v0.3.2
+## What's New in v0.3.3
 
 - **Context-safe info messages** — OpenRouter info panels still display in the UI, but are filtered out before LLM requests
 - **Lower token waste** — `/openrouter-preview`, `/openrouter-balance`, and `/openrouter-status` no longer consume context window space unnecessarily
