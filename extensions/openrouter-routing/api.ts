@@ -10,6 +10,7 @@ import {
   type OpenRouterCreditsInfo,
   type EndpointCacheEntry,
 } from "./types.js";
+import { createGunzip, createInflate } from "zlib";
 
 let cachedModels: OpenRouterModel[] | null = null;
 let cacheTimestamp = 0;
@@ -25,6 +26,47 @@ function makeHeaders(apiKey?: string): Record<string, string> {
   const headers: Record<string, string> = {};
   if (apiKey) headers["Authorization"] = `Bearer ${apiKey}`;
   return headers;
+}
+
+async function decompressResponse(res: Response): Promise<string> {
+  const bodyBuffer = Buffer.from(await res.arrayBuffer());
+
+  if (bodyBuffer.length === 0) return "";
+
+  // Decide based on magic bytes ONLY — native fetch auto-decompresses gzip
+  // but leaves the Content-Encoding header, so trusting that header causes
+  // "incorrect header check" when we gunzip already-decompressed JSON.
+  const byte0 = bodyBuffer[0];
+  const byte1 = bodyBuffer[1];
+  const isGzip = byte0 === 0x1f && byte1 === 0x8b;
+  const isDeflate = byte0 === 0x78 && (byte1 === 0x9c || byte1 === 0x01 || byte1 === 0xda);
+
+  if (isGzip) {
+    return new Promise((resolve, reject) => {
+      const chunks: Buffer[] = [];
+      const gunzip = createGunzip();
+      gunzip.on("data", (chunk) => chunks.push(chunk));
+      gunzip.on("end", () => resolve(Buffer.concat(chunks).toString("utf8")));
+      gunzip.on("error", reject);
+      gunzip.write(bodyBuffer);
+      gunzip.end();
+    });
+  }
+
+  if (isDeflate) {
+    return new Promise((resolve, reject) => {
+      const chunks: Buffer[] = [];
+      const inflate = createInflate();
+      inflate.on("data", (chunk) => chunks.push(chunk));
+      inflate.on("end", () => resolve(Buffer.concat(chunks).toString("utf8")));
+      inflate.on("error", reject);
+      inflate.write(bodyBuffer);
+      inflate.end();
+    });
+  }
+
+  // Already decompressed (by fetch) or was never compressed
+  return bodyBuffer.toString("utf8");
 }
 
 async function fetchWithTimeout(url: string, options: RequestInit = {}): Promise<Response> {
@@ -86,7 +128,18 @@ export async function fetchModels(apiKey?: string, force = false): Promise<OpenR
   });
   if (!res.ok) throw formatFetchError(res, "OpenRouter models API");
 
-  const json = (await res.json()) as { data?: OpenRouterModel[] };
+  const bodyText = await decompressResponse(res);
+  if (!bodyText || bodyText.trim() === "") {
+    throw new Error("OpenRouter models API returned empty response - check network/proxy");
+  }
+
+  let json: { data?: OpenRouterModel[] };
+  try {
+    json = JSON.parse(bodyText);
+  } catch {
+    throw new Error(`OpenRouter models API returned invalid JSON (${bodyText.length} bytes received). Response may be HTML or error page - check network/proxy.`);
+  }
+
   cachedModels = json.data || [];
   cacheTimestamp = now;
   return cachedModels;
@@ -121,7 +174,18 @@ export async function fetchModelEndpoints(
   }
   if (!res.ok) throw formatFetchError(res, "OpenRouter endpoints API");
 
-  const json = (await res.json()) as OpenRouterEndpointsResponse;
+  const bodyText = await decompressResponse(res);
+  if (!bodyText || bodyText.trim() === "") {
+    throw new Error("OpenRouter endpoints API returned empty response");
+  }
+
+  let json: OpenRouterEndpointsResponse;
+  try {
+    json = JSON.parse(bodyText);
+  } catch {
+    throw new Error(`OpenRouter endpoints API returned invalid JSON (${bodyText.length} bytes received)`);
+  }
+
   const endpoints = json.data?.endpoints || [];
   endpointCache.set(modelId, { timestamp: now, endpoints });
   return endpoints;
@@ -133,8 +197,17 @@ export async function fetchKeyInfo(apiKey: string): Promise<OpenRouterKeyInfo> {
   });
   if (!res.ok) throw formatFetchError(res, "OpenRouter key API");
 
-  const json = (await res.json()) as { data?: OpenRouterKeyInfo };
-  return json.data || {};
+  const bodyText = await decompressResponse(res);
+  if (!bodyText || bodyText.trim() === "") {
+    return {};
+  }
+
+  try {
+    const json = JSON.parse(bodyText) as { data?: OpenRouterKeyInfo };
+    return json.data || {};
+  } catch {
+    return {};
+  }
 }
 
 export async function fetchCredits(apiKey: string): Promise<OpenRouterCreditsInfo | null> {
@@ -143,7 +216,9 @@ export async function fetchCredits(apiKey: string): Promise<OpenRouterCreditsInf
       headers: makeHeaders(apiKey),
     });
     if (!res.ok) return null; // requires management key, may fail with regular key
-    const json = (await res.json()) as { data?: OpenRouterCreditsInfo };
+    const bodyText = await decompressResponse(res);
+    if (!bodyText || bodyText.trim() === "") return null;
+    const json = JSON.parse(bodyText) as { data?: OpenRouterCreditsInfo };
     return json.data || null;
   } catch {
     return null;
