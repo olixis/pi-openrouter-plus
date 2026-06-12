@@ -147,6 +147,20 @@ Using `~/.pi/agent/auth.json`:
 
 After the key is available, this extension automatically syncs the latest OpenRouter model list at session start.
 
+#### Use TrustedRouter with the OpenRouter-compatible endpoint
+
+TrustedRouter exposes an OpenRouter-compatible API. Set the TrustedRouter key
+and base URL before starting pi:
+
+```bash
+export TRUSTEDROUTER_API_KEY=tr-...
+export TRUSTEDROUTER_BASE_URL=https://api.trustedrouter.com/v1
+pi
+```
+
+The extension will still register the `openrouter` provider inside pi, but the
+model list, key checks, credits, and requests will use TrustedRouter.
+
 ### 3) Try without installing
 
 ```bash

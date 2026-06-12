@@ -1,5 +1,6 @@
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import {
+  OPENROUTER_API_KEY_ENV,
   OPENROUTER_BASE_URL,
   PROVIDER_NAME,
   type ProviderModelConfig,
@@ -120,7 +121,7 @@ export default async function openrouterModelsExtension(pi: ExtensionAPI) {
   ) {
     pi.registerProvider(PROVIDER_NAME, {
       baseUrl: OPENROUTER_BASE_URL,
-      apiKey: "OPENROUTER_API_KEY",
+      apiKey: OPENROUTER_API_KEY_ENV,
       api: "openai-completions",
       models,
       headers: {
@@ -141,7 +142,7 @@ export default async function openrouterModelsExtension(pi: ExtensionAPI) {
       // resolve saved scoped-model patterns before session_start fires.
       // The models endpoint is public, and session_start refreshes again with
       // the configured API key when one is available.
-      const result = await buildPlainSync(process.env.OPENROUTER_API_KEY, true);
+      const result = await buildPlainSync(process.env[OPENROUTER_API_KEY_ENV], true);
 
       if (isStale(generation)) return;
       commitSnapshot(generation, result.models, result.routes);

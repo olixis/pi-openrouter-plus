@@ -151,8 +151,15 @@ export interface EndpointCacheEntry {
   endpoints: OpenRouterEndpoint[];
 }
 
-export const OPENROUTER_MODELS_URL = "https://openrouter.ai/api/v1/models";
-export const OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1";
+export const OPENROUTER_BASE_URL = (
+  process.env.TRUSTEDROUTER_BASE_URL ||
+  process.env.OPENROUTER_BASE_URL ||
+  "https://openrouter.ai/api/v1"
+).replace(/\/+$/, "");
+export const OPENROUTER_MODELS_URL = `${OPENROUTER_BASE_URL}/models`;
+export const OPENROUTER_API_KEY_ENV = process.env.TRUSTEDROUTER_API_KEY
+  ? "TRUSTEDROUTER_API_KEY"
+  : "OPENROUTER_API_KEY";
 export const PROVIDER_NAME = "openrouter";
 export const CACHE_TTL_MS = 30 * 60 * 1000;
 export const FETCH_TIMEOUT_MS = 15_000;
