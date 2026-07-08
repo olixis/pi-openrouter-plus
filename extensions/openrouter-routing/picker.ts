@@ -1,57 +1,12 @@
-import { visibleWidth, fuzzyFilter, matchesKey, decodeKittyPrintable } from "@earendil-works/pi-tui";
+import { visibleWidth, matchesKey, decodeKittyPrintable } from "@earendil-works/pi-tui";
 import type { Component, Focusable } from "@earendil-works/pi-tui";
+import { rankModelsForQuery, sanitizeText } from "./model-search.js";
 import type { OpenRouterModel } from "./types.js";
+
+export { rankModelsForQuery } from "./model-search.js";
 
 const VIEWPORT_ROWS = 10;
 const SUMMARY_ROWS = 2;
-
-function searchableText(model: OpenRouterModel): string {
-  const id = model.id;
-  const provider = id.split("/")[0] || "openrouter";
-  const tokenizedId = id.replace(/[/:_.-]+/g, " ");
-  const name = model.name || "";
-  return `${id} ${provider} ${provider}/${id} ${provider} ${id} ${tokenizedId} ${name}`;
-}
-
-function sortModels(models: OpenRouterModel[]): OpenRouterModel[] {
-  return [...models].sort((a, b) => a.id.localeCompare(b.id));
-}
-
-function queryTokens(query: string): string[] {
-  return sanitizeText(query).toLowerCase().split(/\s+/).filter(Boolean);
-}
-
-function containsAllTokens(text: string, tokens: string[]): boolean {
-  const lower = sanitizeText(text).toLowerCase();
-  return tokens.every((token) => lower.includes(token));
-}
-
-export function rankModelsForQuery(models: OpenRouterModel[], query: string): OpenRouterModel[] {
-  const trimmed = sanitizeText(query);
-  if (!trimmed) return sortModels(models);
-
-  const tokens = queryTokens(trimmed);
-  const sorted = sortModels(models);
-
-  const exactId = sorted.filter((m) => containsAllTokens(m.id, tokens));
-  const exactName = sorted.filter(
-    (m) => !exactId.includes(m) && containsAllTokens(m.name || "", tokens),
-  );
-  const exactTokenizedId = sorted.filter(
-    (m) => !exactId.includes(m) && !exactName.includes(m) && containsAllTokens(m.id.replace(/[/:_.-]+/g, " "), tokens),
-  );
-
-  const remaining = sorted.filter(
-    (m) => !exactId.includes(m) && !exactName.includes(m) && !exactTokenizedId.includes(m),
-  );
-  const fuzzy = fuzzyFilter(remaining, trimmed, searchableText);
-
-  return [...exactId, ...exactName, ...exactTokenizedId, ...fuzzy];
-}
-
-function sanitizeText(text: string): string {
-  return text.replace(/[\r\n\t]+/g, " ").replace(/\s{2,}/g, " ").trim();
-}
 
 function stripAnsi(text: string): string {
   // eslint-disable-next-line no-control-regex
@@ -175,7 +130,7 @@ export class ModelPickerComponent implements Component, Focusable {
     this.theme = theme;
     this.done = done;
     this.title = title;
-    this.allModels = sortModels(models);
+    this.allModels = rankModelsForQuery(models, "");
     this.filteredModels = this.allModels;
     if (this.tui?.setShowHardwareCursor) this.tui.setShowHardwareCursor(false);
     if (this.tui?.setClearOnShrink) this.tui.setClearOnShrink(true);
