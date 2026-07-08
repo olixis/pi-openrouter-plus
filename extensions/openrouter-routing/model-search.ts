@@ -9,7 +9,7 @@ function searchableText(model: OpenRouterModel): string {
   return `${id} ${provider} ${provider}/${id} ${provider} ${id} ${tokenizedId} ${name}`;
 }
 
-export function sortModels(models: OpenRouterModel[]): OpenRouterModel[] {
+function sortModels(models: OpenRouterModel[]): OpenRouterModel[] {
   return [...models].sort((a, b) => a.id.localeCompare(b.id));
 }
 

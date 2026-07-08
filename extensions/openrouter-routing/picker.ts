@@ -1,6 +1,6 @@
 import { visibleWidth, matchesKey, decodeKittyPrintable } from "@earendil-works/pi-tui";
 import type { Component, Focusable } from "@earendil-works/pi-tui";
-import { rankModelsForQuery, sanitizeText, sortModels } from "./model-search.js";
+import { rankModelsForQuery, sanitizeText } from "./model-search.js";
 import type { OpenRouterModel } from "./types.js";
 
 export { rankModelsForQuery } from "./model-search.js";
@@ -130,7 +130,7 @@ export class ModelPickerComponent implements Component, Focusable {
     this.theme = theme;
     this.done = done;
     this.title = title;
-    this.allModels = sortModels(models);
+    this.allModels = rankModelsForQuery(models, "");
     this.filteredModels = this.allModels;
     if (this.tui?.setShowHardwareCursor) this.tui.setShowHardwareCursor(false);
     if (this.tui?.setClearOnShrink) this.tui.setClearOnShrink(true);
