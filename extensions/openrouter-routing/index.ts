@@ -120,7 +120,7 @@ export default async function openrouterModelsExtension(pi: ExtensionAPI) {
   ) {
     pi.registerProvider(PROVIDER_NAME, {
       baseUrl: OPENROUTER_BASE_URL,
-      apiKey: "OPENROUTER_API_KEY",
+      apiKey: "$OPENROUTER_API_KEY",
       api: "openai-completions",
       models,
       headers: {
