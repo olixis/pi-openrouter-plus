@@ -12,6 +12,9 @@ import {
   type InputType,
 } from "./types.js";
 import { fetchModelEndpoints } from "./api.js";
+import { getAgentDir } from "@earendil-works/pi-coding-agent";
+import { readFileSync, existsSync } from "node:fs";
+import { join } from "node:path";
 
 // ---------- Reasoning detection ----------
 
@@ -107,9 +110,77 @@ function minPositive(values: Array<number | undefined>, fallback: number): numbe
 
 const BUILTIN_OPENROUTER_MODELS = new Map(getModels("openrouter").map((model) => [model.id, model]));
 
+// --- Respect models.json `modelOverrides` for openrouter -----------------
+// This extension re-registers the whole OpenRouter provider from the live
+// catalog, which would otherwise drop the user's models.json per-model
+// overrides (compat.openRouterRouting, contextWindow, ...). Load them once
+// and re-apply on top of every synced model so the override stays effective.
+// Mirrored from pi-coding-agent's utils/json.js — keep byte-identical so JSONC
+// (// comments + trailing commas) parses exactly like pi's own models.json loader.
+function stripJsonComments(input: string): string {
+  return input
+    .replace(/"(?:\\.|[^"\\])*"|\/\/[^\n]*/g, (m) => (m[0] === '"' ? m : ""))
+    .replace(/"(?:\\.|[^"\\])*"|,(\s*[}\]])/g, (m, tail) => tail ?? (m[0] === '"' ? m : ""));
+}
+
+function loadModelOverrides(): Map<string, Record<string, unknown>> {
+  const map = new Map<string, Record<string, unknown>>();
+  try {
+    const path = join(getAgentDir(), "models.json");
+    if (!existsSync(path)) return map;
+    const cfg = JSON.parse(stripJsonComments(readFileSync(path, "utf-8")));
+    const overrides = cfg?.providers?.openrouter?.modelOverrides;
+    if (overrides && typeof overrides === "object") {
+      for (const [id, ov] of Object.entries(overrides as Record<string, unknown>)) {
+        if (ov && typeof ov === "object") map.set(id, ov as Record<string, unknown>);
+      }
+    }
+  } catch (err) {
+    // Malformed models.json — fall back to no overrides, but surface the
+    // failure so it's diagnosable (a silently-empty map was the original bug).
+    console.warn(
+      `[pi-openrouter-realtime] failed to load models.json overrides: ${err instanceof Error ? err.message : String(err)}`,
+    );
+  }
+  return map;
+}
+
+const MODEL_OVERRIDES = loadModelOverrides();
+
+function applyUserOverride(model: ProviderModelConfig): ProviderModelConfig {
+  const ov = MODEL_OVERRIDES.get(model.id);
+  if (!ov) return model;
+
+  const merged: ProviderModelConfig = { ...model };
+
+  if (ov.contextWindow !== undefined) merged.contextWindow = ov.contextWindow as number;
+  if (ov.maxTokens !== undefined) merged.maxTokens = ov.maxTokens as number;
+  if (ov.name !== undefined) merged.name = ov.name as string;
+  if (ov.reasoning !== undefined) merged.reasoning = ov.reasoning as boolean;
+  if (ov.input !== undefined) merged.input = ov.input as ProviderModelConfig["input"];
+  if (ov.thinkingLevelMap) {
+    merged.thinkingLevelMap = { ...(merged.thinkingLevelMap ?? {}), ...(ov.thinkingLevelMap as object) };
+  }
+  if (ov.headers) merged.headers = { ...(merged.headers ?? {}), ...(ov.headers as object) };
+  if (ov.cost) {
+    merged.cost = {
+      ...merged.cost,
+      ...(ov.cost as object),
+    };
+  }
+  if (ov.compat) {
+    merged.compat = {
+      ...((merged.compat ?? {}) as Record<string, unknown>),
+      ...((ov.compat ?? {}) as Record<string, unknown>),
+    } as ProviderModelConfig["compat"];
+  }
+
+  return merged;
+}
+
 function applyBuiltinOpenRouterMetadata(model: ProviderModelConfig): ProviderModelConfig {
   const builtin = BUILTIN_OPENROUTER_MODELS.get(model.id);
-  if (!builtin) return model;
+  if (!builtin) return applyUserOverride(model);
 
   const merged: ProviderModelConfig = {
     ...model,
@@ -139,7 +210,7 @@ function applyBuiltinOpenRouterMetadata(model: ProviderModelConfig): ProviderMod
     } as ProviderModelConfig["compat"];
   }
 
-  return merged;
+  return applyUserOverride(merged);
 }
 
 export function toProviderModel(m: OpenRouterModel): ProviderModelConfig {
